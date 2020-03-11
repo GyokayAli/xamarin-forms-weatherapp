@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Weather.App.Helpers;
 using Weather.App.Models;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -14,18 +15,19 @@ namespace Weather.App.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class CurrentWeatherPage : ContentPage
     {
-        private string location = "Sofia";
-        private const string appId = "15ad6b24d0effce625c032cff5a327d7";
+        private const string APP_ID = "15ad6b24d0effce625c032cff5a327d7";
+
+        public string Location { get; set; } = "Sofia";
 
         public CurrentWeatherPage()
         {
             InitializeComponent();
-            GetWeatherInfo();
+            GetCoordinates();
         }
 
         private async void GetWeatherInfo()
         {
-            var url = $"http://api.openweathermap.org/data/2.5/weather?q={location}&APPID={appId}&units=metric";
+            var url = $"http://api.openweathermap.org/data/2.5/weather?q={Location}&APPID={APP_ID}&units=metric";
             var result = await ApiCaller.Get(url);
 
             if (result.Successful)
@@ -48,6 +50,7 @@ namespace Weather.App.Views
                     dateTxt.Text = dt.ToString("dddd, MMM dd").ToUpper();
 
                     GetForecast();
+                    GetBackground();
                 }
                 catch (Exception ex)
                 {
@@ -62,7 +65,7 @@ namespace Weather.App.Views
 
         private async void GetForecast()
         {
-            var url = $"http://api.openweathermap.org/data/2.5/forecast?q={location}&appid={appId}&units=metric";
+            var url = $"http://api.openweathermap.org/data/2.5/forecast?q={Location}&appid={APP_ID}&units=metric";
             var result = await ApiCaller.Get(url);
 
             if (result.Successful)
@@ -110,6 +113,68 @@ namespace Weather.App.Views
             else
             {
                 await DisplayAlert("Weather Info", "No forecast information found", "OK");
+            }
+        }
+
+        private async void GetCoordinates()
+        {
+            try
+            {
+                var request = new GeolocationRequest(GeolocationAccuracy.Medium);
+                var location = await Geolocation.GetLocationAsync(request);
+
+                if (location != null)
+                {
+                    Location = await GetCity(location);
+                    GetWeatherInfo();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+            }
+        }
+
+        private async Task<string> GetCity(Location location)
+        {
+            try
+            {
+                var placemarks = await Geocoding.GetPlacemarksAsync(location.Latitude, location.Longitude);
+                var placemark = placemarks?.FirstOrDefault();
+
+                if (placemark != null)
+                    return $"{placemark.Locality},{placemark.CountryCode}";
+            }
+            catch (FeatureNotSupportedException fnsEx)
+            {
+                // Feature not supported on device
+            }
+            catch (Exception ex)
+            {
+                // Handle exception that may have occurred in geocoding
+            }
+            return Location;
+        }
+
+        private async void GetBackground()
+        {
+            var url = $"https://api.pexels.com/v1/search?query={Location}&per_page=15&page=1";
+            var pexelsAuthId = "563492ad6f917000010000011dacb69aaca240b9bf9c2a49862643c0";
+
+            var result = await ApiCaller.Get(url, pexelsAuthId);
+
+            if (result.Successful)
+            {
+                var bgInfo = JsonConvert.DeserializeObject<BackgroundInfo>(result.Response);
+
+                if (bgInfo != null && bgInfo.Photos.Length > 0)
+                {
+                    var randomIndex = new Random().Next(0, bgInfo.Photos.Length - 1);
+                    bgImg.Source = ImageSource.FromUri(
+                        new Uri(bgInfo.Photos[randomIndex].Src.Medium)
+                        );
+
+                }
             }
         }
     }
