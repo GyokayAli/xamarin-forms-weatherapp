@@ -36,18 +36,18 @@ namespace Weather.App.Views
                 {
                     var weatherInfo = JsonConvert.DeserializeObject<WeatherInfo>(result.Response);
 
-                    descriptionTxt.Text = weatherInfo.Weather.First().Description.ToUpper();
-                    iconImg.Source = $"w{weatherInfo.Weather.First().Icon}";
-                    cityTxt.Text = weatherInfo.Name.ToUpper();
+                    //descriptionTxt.Text = weatherInfo.Weather.First().Description.ToUpper();
+                    //iconImg.Source = $"w{weatherInfo.Weather.First().Icon}";
+                    //cityTxt.Text = weatherInfo.Name.ToUpper();
 
-                    temperatureTxt.Text = weatherInfo.Main.Temp.ToString("0");
-                    humidityTxt.Text = $"{weatherInfo.Main.Humidity}%";
-                    pressureTxt.Text = $"{weatherInfo.Main.Pressure} hpa";
-                    windTxt.Text = $"{weatherInfo.Wind.Speed} m/s";
-                    cloudinessTxt.Text = $"{weatherInfo.Clouds.All}%";
+                    //temperatureTxt.Text = weatherInfo.Main.Temp.ToString("0");
+                    //humidityTxt.Text = $"{weatherInfo.Main.Humidity}%";
+                    //pressureTxt.Text = $"{weatherInfo.Main.Pressure} hpa";
+                    //windTxt.Text = $"{weatherInfo.Wind.Speed} m/s";
+                    //cloudinessTxt.Text = $"{weatherInfo.Clouds.All}%";
 
-                    var dt = new DateTime().ToUniversalTime().AddSeconds(weatherInfo.Dt);
-                    dateTxt.Text = dt.ToString("dddd, MMM dd").ToUpper();
+                    //var dt = new DateTime().ToUniversalTime().AddSeconds(weatherInfo.Dt);
+                    //dateTxt.Text = dt.ToString("dddd, MMM dd").ToUpper();
 
                     GetForecast();
                     GetBackground();
@@ -85,25 +85,25 @@ namespace Weather.App.Views
                             allList.Add(list);
                     }
 
-                    dayOneTxt.Text = DateTime.Parse(allList[0].Dt_txt).ToString("dddd");
-                    dateOneTxt.Text = DateTime.Parse(allList[0].Dt_txt).ToString("dd MMM");
-                    iconOneImg.Source = $"w{allList[0].Weather[0].Icon}";
-                    tempOneTxt.Text = allList[0].Main.Temp.ToString("0");
+                    //dayOneTxt.Text = DateTime.Parse(allList[0].Dt_txt).ToString("dddd");
+                    //dateOneTxt.Text = DateTime.Parse(allList[0].Dt_txt).ToString("dd MMM");
+                    //iconOneImg.Source = $"w{allList[0].Weather[0].Icon}";
+                    //tempOneTxt.Text = allList[0].Main.Temp.ToString("0");
 
-                    dayTwoTxt.Text = DateTime.Parse(allList[1].Dt_txt).ToString("dddd");
-                    dateTwoTxt.Text = DateTime.Parse(allList[1].Dt_txt).ToString("dd MMM");
-                    iconTwoImg.Source = $"w{allList[1].Weather[0].Icon}";
-                    tempTwoTxt.Text = allList[1].Main.Temp.ToString("0");
+                    //dayTwoTxt.Text = DateTime.Parse(allList[1].Dt_txt).ToString("dddd");
+                    //dateTwoTxt.Text = DateTime.Parse(allList[1].Dt_txt).ToString("dd MMM");
+                    //iconTwoImg.Source = $"w{allList[1].Weather[0].Icon}";
+                    //tempTwoTxt.Text = allList[1].Main.Temp.ToString("0");
 
-                    dayThreeTxt.Text = DateTime.Parse(allList[2].Dt_txt).ToString("dddd");
-                    dateThreeTxt.Text = DateTime.Parse(allList[2].Dt_txt).ToString("dd MMM");
-                    iconThreeImg.Source = $"w{allList[2].Weather[0].Icon}";
-                    tempThreeTxt.Text = allList[2].Main.Temp.ToString("0");
+                    //dayThreeTxt.Text = DateTime.Parse(allList[2].Dt_txt).ToString("dddd");
+                    //dateThreeTxt.Text = DateTime.Parse(allList[2].Dt_txt).ToString("dd MMM");
+                    //iconThreeImg.Source = $"w{allList[2].Weather[0].Icon}";
+                    //tempThreeTxt.Text = allList[2].Main.Temp.ToString("0");
 
-                    dayFourTxt.Text = DateTime.Parse(allList[3].Dt_txt).ToString("dddd");
-                    dateFourTxt.Text = DateTime.Parse(allList[3].Dt_txt).ToString("dd MMM");
-                    iconFourImg.Source = $"w{allList[3].Weather[0].Icon}";
-                    tempFourTxt.Text = allList[3].Main.Temp.ToString("0");
+                    //dayFourTxt.Text = DateTime.Parse(allList[3].Dt_txt).ToString("dddd");
+                    //dateFourTxt.Text = DateTime.Parse(allList[3].Dt_txt).ToString("dd MMM");
+                    //iconFourImg.Source = $"w{allList[3].Weather[0].Icon}";
+                    //tempFourTxt.Text = allList[3].Main.Temp.ToString("0");
                 }
                 catch (Exception ex)
                 {
@@ -114,6 +114,27 @@ namespace Weather.App.Views
             {
                 await DisplayAlert("Weather Info", "No forecast information found", "OK");
             }
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            WeatherForecastList.ItemsSource = WeatherData();
+        }
+
+        public List<Weather2> Weathers { get => WeatherData(); }
+
+        private List<Weather2> WeatherData()
+        {
+            var tempList = new List<Weather2>();
+            tempList.Add(new Weather2 { Temp = "22", Date = "Sunday 16", Icon = "cloud.png" });
+            tempList.Add(new Weather2 { Temp = "21", Date = "Monday 17", Icon = "cloud.png" });
+            tempList.Add(new Weather2 { Temp = "20", Date = "Tuesday 18", Icon = "cloud.png" });
+            tempList.Add(new Weather2 { Temp = "12", Date = "Wednesday 19", Icon = "cloud.png" });
+            tempList.Add(new Weather2 { Temp = "17", Date = "Thursday 20", Icon = "cloud.png" });
+            tempList.Add(new Weather2 { Temp = "20", Date = "Friday 21", Icon = "cloud.png" });
+
+            return tempList;
         }
 
         private async void GetCoordinates()
@@ -170,12 +191,19 @@ namespace Weather.App.Views
                 if (bgInfo != null && bgInfo.Photos.Length > 0)
                 {
                     var randomIndex = new Random().Next(0, bgInfo.Photos.Length - 1);
-                    bgImg.Source = ImageSource.FromUri(
-                        new Uri(bgInfo.Photos[randomIndex].Src.Medium)
-                        );
+                    //bgImg.Source = ImageSource.FromUri(
+                    //    new Uri(bgInfo.Photos[randomIndex].Src.Medium)
+                    //    );
 
                 }
             }
         }
+    }
+
+    public class Weather2
+    {
+        public string Temp { get; set; }
+        public string Date { get; set; }
+        public string Icon { get; set; }
     }
 }
